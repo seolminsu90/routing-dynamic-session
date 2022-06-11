@@ -4,7 +4,7 @@
 - 기존 맵 방식으로 구현된 dynamic-session과 다르게 별도로 routing 구현
 - 공통 디비(CommonDB 등)로 부터 데이터베이스 정보를 읽어와 여러개의 월드 데이터소스를 동적 구현한다.
 
-### http://localhost:9090/api/root/databases
+### /api/root/databases
 공통 디비에서 월드 조회. 다음과 같다.
 ```bash
 {
@@ -23,7 +23,7 @@
 ```
 
 이후 해당 정보로 데이터소스를 동적으로 구현하는 기능을 가진다. 
-### http://localhost:9090/api/users?worldId=1
+### /api/users?worldId=1
 ```bash
 {
   "result": [
@@ -39,7 +39,7 @@
   "status": "OK"
 }
 ```
-### http://localhost:9090/api/users?worldId=2
+### /api/users?worldId=2
 ```bash
 {
   "result": [
