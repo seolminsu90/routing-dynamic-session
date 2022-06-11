@@ -1,0 +1,10 @@
+server.port: 9090
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+# 왜 syntax 에러 뜨지-_-?;
+management:
+  server:
+    port: 9091  endpoints:    web:      exposure:        include: '*'
