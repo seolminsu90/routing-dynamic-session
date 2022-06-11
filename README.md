@@ -4,6 +4,7 @@
 - 기존 맵 방식으로 구현된 dynamic-session과 다르게 별도로 routing 구현
 - 공통 디비(CommonDB 등)로 부터 데이터베이스 정보를 읽어와 여러개의 월드 데이터소스를 동적 구현한다.
 - 하위 DB 간 트랜젝션 처리 시 일관성을 가질 수 있도록 한다. (XA)
+- ThreadLocal주입 Annotation Aspect 구현으로 수작업으로 Context 수정 안해도 되게 하고, @Mapper Interface로 Mapper들 등록되도록 수정 
 
 ---
 
