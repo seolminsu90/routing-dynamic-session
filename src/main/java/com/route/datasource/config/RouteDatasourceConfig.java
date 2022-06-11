@@ -11,17 +11,14 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.jta.atomikos.AtomikosDataSourceBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.route.datasource.model.RouteDatabaseInfo;
 
@@ -29,39 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@EnableTransactionManagement
-public class DatasourceConfig {
-  // 공통 DB 설정 시작
-  @Bean(name = "rootDataSource")
-  public DataSource rootDataSource() {
-    return makeDataSource("common", "root-schema.sql", "root-data.sql");
-  }
+@MapperScan(value = "com.route.datasource.repository.routing", sqlSessionFactoryRef = "routingSessionFactory")
+public class RouteDatasourceConfig {
   
-  @Bean(name = "rootSessionFactory")
-  public SqlSessionFactory rootSessionFactory(@Qualifier("rootDataSource") DataSource dataSource, ApplicationContext applicationContext) throws Exception {
-    SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-    sessionFactory.setDataSource(dataSource);
-    sessionFactory.setTransactionFactory(new ManagedTransactionFactory());
-    sessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/root/*.xml"));
-    
-    return sessionFactory.getObject();
-  }
-  
-  @Bean(name = "rootSessionTemplate")
-  public SqlSessionTemplate rootSqlSessionTemplate(@Qualifier("rootSessionFactory") SqlSessionFactory sqlSessionFactory) {
-    return new SqlSessionTemplate(sqlSessionFactory);
-  }
-  
-  @Bean(name = "rootTxManager")
-  public DataSourceTransactionManager rootTransactionManager(@Qualifier("rootDataSource") DataSource datasource) {
-    DataSourceTransactionManager manager = new DataSourceTransactionManager();
-    manager.setDataSource(datasource);
-    return manager;
-  }
-  
-  // 공통 DB 설정 끝
-  
-  // 라우팅(하위) DB 설정 시작
+  @DependsOn({ "rootSessionTemplate" })
   @Bean("routingDataSource")
   public DataSource routingDataSource(@Qualifier("rootSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
     List<RouteDatabaseInfo> list = sqlSessionTemplate.selectList("selectDatabaseInfo"); // 공통 DB에서 하위 DB 목록을 가져온다.
@@ -85,27 +53,6 @@ public class DatasourceConfig {
     sessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/routing/*.xml"));
     
     return sessionFactory.getObject();
-  }
-  
-  @Bean(name = "routingSessionTemplate")
-  public SqlSessionTemplate routingSqlSessionTemplate(@Qualifier("routingSessionFactory") SqlSessionFactory sqlSessionFactory) {
-    return new SqlSessionTemplate(sqlSessionFactory);
-  }
-  
-  // Datasource 생성 - 공통 디비 사용 용도
-  private DataSource makeDataSource(String name, @Nullable String createSqlLoc, @Nullable String addDataSqlLoc) {
-    
-    log.info("=== DataSource ===");
-    log.info(name);
-    log.info(createSqlLoc);
-    log.info(addDataSqlLoc);
-    
-    EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-    builder.setType(EmbeddedDatabaseType.H2).setName(name);
-    if (createSqlLoc != null) builder.addScript(createSqlLoc);
-    if (addDataSqlLoc != null) builder.addScript(addDataSqlLoc);
-    
-    return builder.build();
   }
   
   // XA Datasource 생성 - XA 가 적용된 트랜젝션 사용을 위한 하위 디비 사용 용도

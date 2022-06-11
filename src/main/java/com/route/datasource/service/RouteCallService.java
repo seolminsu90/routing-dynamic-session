@@ -11,10 +11,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import com.route.datasource.config.RouteDataSource;
 import com.route.datasource.model.RouteDatabaseInfo;
 import com.route.datasource.model.User;
+import com.route.datasource.model.UserDTO;
 import com.route.datasource.model.UserRequest;
-import com.route.datasource.repository.RootMapper;
-import com.route.datasource.repository.UserMapper;
-import com.route.datasource.util.ThreadLocalContext;
+import com.route.datasource.repository.root.RootMapper;
+import com.route.datasource.repository.routing.UserMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ public class RouteCallService {
   }
   
   public List<User> getUser(Integer worldId) {
-    ThreadLocalContext.set(worldId);
-    return userMapper.selectUserList();
+    //ThreadLocalContext.set(worldId); Aspect 적용으로 필요없어짐
+    return userMapper.selectUserList(worldId);
   }
   
   /*
@@ -55,16 +55,14 @@ public class RouteCallService {
     log.info(ids.toString());
     
     for (Integer id : ids) {
-      ThreadLocalContext.set(id);
       log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
       log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
-      log.info("ThreadLocal {}", ThreadLocalContext.get());
       
-      userMapper.createRouteUser(request.getName() + "_1");
+      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_1" + id));
       if ("TestError".equals(request.getName()) && id == 1) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
-      userMapper.createRouteUser(request.getName() + "_2");
+      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_2" + id));
       if ("ErrorTest".equals(request.getName()) && id == 2) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
-      userMapper.createRouteUser(request.getName() + "_3");
+      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_3" + id));
     }
     
     return 0;
