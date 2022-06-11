@@ -5,6 +5,8 @@
 - 공통 디비(CommonDB 등)로 부터 데이터베이스 정보를 읽어와 여러개의 월드 데이터소스를 동적 구현한다.
 - 하위 DB 간 트랜젝션 처리 시 일관성을 가질 수 있도록 한다. (XA)
 
+---
+
 ### /api/root/databases
 공통 디비에서 월드 조회. 다음과 같다.
 ```bash
@@ -29,8 +31,11 @@
 - TestError 로 입력 시 1번 월드 생성 도중 에러 발생, ErrorTest로 입력 시 2번 월드 생성 도중 에러 발생을 강제시킨다.
 
 **XA가 적용된 Datasource와 TxManager 사용 시 에러 발생 시 두개의 DB 모두 롤백되어있는 것을 확인 할 수 있다.**
+
 *XA가 적용되지 않은 일반 TxManager 및 DataSource 사용 시 해당하는 DB만 롤백된다. 또한 routeTxManger가 Datasource 선택 시 LookupKey가 없을 시
-에러를 먼저 뱉기 때문에... Transaction 적용이 필요한 곳은 별도로 분리 해서 만들어야 한다. (소스상엔 XA 구현되어있음)
+에러를 먼저 뱉기 때문에... Transaction 적용이 필요한 곳은 별도로 분리 해서 만들어야 한다. (소스상엔 XA 구현되어있음)*
+
+---
 
 ### /api/users?worldId=1
 ### /api/users?worldId=2
@@ -38,6 +43,8 @@
 
 위의 두 endpoint로 접근하게 되는 빈은 같은 RouteDatasource, SqlSessionTemplate, SqlSesstionFactory, MybatisMapper, TransactionManager(여기서는 구현 안함)를 
 사용함으로서 불필요하게 **동일한 역할을 하는 빈을 과다하게 로드할 필요가 없어진다.** (내부적으로 Datasource Bean은 DB수만큼 생김)
+
+---
 
 ```bash
 # /actuator/beans
@@ -55,6 +62,8 @@
 ```
 - 다음과 같이 여러개의 Datasource여도 한개 **Singleton Mapper 빈만 로드된다.**
 - {world}_datasource + {world}_mapper 를 별도 구성할 필요가 없다. (~~world * mapper는..좀..~~)
+
+---
 
 ## Datasource Mapping 구조
 ```bash
