@@ -4,8 +4,15 @@
 
 		<select id="selectUserList"
 				resultType="com.route.datasource.model.User">
-				SELECT ID, NAME
+
+				SELECT NAME
 				FROM TB_USER
+
 		</select>
 
+		<insert id="createRouteUser" parameterType="String">
+
+				INSERT INTO TB_USER (NAME) VALUES (#{value})
+
+		</insert>
 </mapper>
