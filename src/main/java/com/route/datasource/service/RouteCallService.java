@@ -61,6 +61,7 @@ public class RouteCallService {
       log.info("ThreadLocal {}", ThreadLocalContext.get());
       
       userMapper.createRouteUser(request.getName() + "_1");
+      if ("TestError".equals(request.getName()) && id == 1) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
       userMapper.createRouteUser(request.getName() + "_2");
       if ("ErrorTest".equals(request.getName()) && id == 2) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
       userMapper.createRouteUser(request.getName() + "_3");
