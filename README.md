@@ -60,7 +60,7 @@
 }
 ```
 위의 두 endpoint로 접근하게 되는 빈은 같은 RouteDatasource, SqlSessionTemplate, SqlSesstionFactory, MybatisMapper, TransactionManager(여기서는 구현 안함)를 
-사용함으로서 불필요하게 동일한 역할을 하는 빈을 과다하게 로드할 필요가 없어진다. (내부적으로 Datasource Bean은 DB수만큼 생김)
+사용함으로서 불필요하게 **동일한 역할을 하는 빈을 과다하게 로드할 필요가 없어진다.** (내부적으로 Datasource Bean은 DB수만큼 생김)
 
 ```bash
 # /actuator/beans
@@ -76,8 +76,8 @@
         },
         ....
 ```
-- 다음과 같이 여러개의 Datasource여도 한개 Singleton Mapper 빈만 로드된다.
-- {world}_datasource + {world}_mapper 를 별도 구성할 필요가 없다. (world * mapper는..좀..)
+- 다음과 같이 여러개의 Datasource여도 한개 **Singleton Mapper 빈만 로드된다.**
+- {world}_datasource + {world}_mapper 를 별도 구성할 필요가 없다. (~~world * mapper는..좀..~~)
 
 ## Datasource Mapping 구조
 ```bash
