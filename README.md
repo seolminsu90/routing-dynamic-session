@@ -102,3 +102,10 @@
       }
 ```
 - 라우트 데이터 소스 아래의 컴포넌트로 Map<[key],Datasource> 형태로 하위 구현되는 걸 확인 할 수 있다.
+
+## routingSessionFactory의 TransactionFactory 교체
+
+기본으로 **SpringManagedTransactionFactory** 을 사용하다보니 Sync된 한개의 Datasource만 계속 보는 현상이 있다.
+인터넷을 보니 **ManagedTransactionFactory** 로 교체하면 된다고 하여 교체하였었는데, 커넥션을 재사용하지 않고
+쿼리 하나하나 마다 계속 **connection->query->clos**e를 반복하고 있었다. 그래서 커넥션을 재사용하도록 **MultiDataSourceTransactionFactory** 를 구현해서 바꿨다.
+
