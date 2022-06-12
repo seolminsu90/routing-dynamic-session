@@ -30,40 +30,51 @@ public class RouteCallService {
   @Autowired
   private RouteDataSource routeDataSource;
   
+  @Transactional(value = "rootTxManager")
   public List<RouteDatabaseInfo> getRootAllDatabases() {
+    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    
     return rootMapper.selectDatabaseInfo();
   }
   
   public List<User> getUser(Integer worldId) {
-    //ThreadLocalContext.set(worldId); Aspect 적용으로 필요없어짐
+    // ThreadLocalContext.set(worldId); Aspect 적용으로 필요없어짐
     return userMapper.selectUserList(worldId);
   }
   
-  /*
-   * XA 트랜젝션 Manager 사용
-   * 시나리오
-   * - 월드 목록 가져온다. (현재 1,2)
-   * - 월드 별로 입력받은 이름으로 각기 다른 3개의 유저를 생성한다.
-   * - ErrorTest로 넣을 경우 2번 월드에 유저를 생성 할 때 에러가 발생하고, 1번 월드까지 롤백되는 것을 확인 할 수 있다.
-   * - 일반 routeTxManager로 설정 시 월드별 작업을 따로 Transaction으로 묶어야 한다. (한개만 적용되는 이슈로 인해)
-   * - *참조 : 트렌젝션은 프록시로 동작하기에 private나 동일클래스 다른 메소드 호출 등에 동작하지 않음.
-   */
+  // XA multiTxManager가 XaDatasource를 관리해준다.
   @Transactional(value = "multiTxManager")
   public int createRouteUser(UserRequest request) {
     
-    Set<Integer> ids = routeDataSource.getServerIds();
+    Set<Integer> ids = routeDataSource.getServerLookupWorldIds();
     log.info(ids.toString());
     
-    for (Integer id : ids) {
-      log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
-      log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    // 교차 트랜젝션 확인을 위해 For문 -> 교차 월드 작업
+    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
       
-      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_1" + id));
-      if ("TestError".equals(request.getName()) && id == 1) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
-      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_2" + id));
-      if ("ErrorTest".equals(request.getName()) && id == 2) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
-      userMapper.createRouteUser(new UserDTO(id, request.getName() + "_3" + id));
-    }
+    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_1" + 1));
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_2" + 2));
+    if ("TestError".equals(request.getName())) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
+    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_3" + 1));
+    
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_1" + 2));
+    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_2" + 1));
+    if ("ErrorTest".equals(request.getName())) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_3" + 2));
+    
+    return 0;
+  }
+  
+  @Transactional(value = "multiTxManager")
+  public int createRouteUser(UserRequest request, Integer id) {
+    
+    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    
+    // null로 이름을 보내면 아예 커넥션을 맺지 않아본다.
+    if (!"null".equals(request.getName())) userMapper.createRouteUser(new UserDTO(id, request.getName() + "_1" + id));
     
     return 0;
   }

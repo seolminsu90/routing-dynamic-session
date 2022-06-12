@@ -18,7 +18,7 @@ public class RouteDataSource extends AbstractRoutingDataSource {
   }
   
   // AbstractRoutingDataSource 에 등록된 월드를 LookupKey로 변환해서 리턴
-  public Set<Integer> getServerIds() {
+  public Set<Integer> getServerLookupWorldIds() {
     Map<Object, DataSource> resolvedDataSources = super.getResolvedDataSources();
     return resolvedDataSources.keySet().stream().map(key -> Integer.valueOf(key.toString())).collect(Collectors.toSet());
   }

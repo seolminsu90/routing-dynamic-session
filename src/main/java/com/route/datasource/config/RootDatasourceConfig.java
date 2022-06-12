@@ -25,6 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 @EnableTransactionManagement
 @MapperScan(value = "com.route.datasource.repository.root", sqlSessionFactoryRef = "rootSessionFactory")
 public class RootDatasourceConfig {
+  /* 
+      하위 DB들 정보를 가지고 있는 루트 CommonDB의 역할.
+      하위 DB와 Tx를 공유해야 한다면 별도로 RouteDataSource에 포함되도록 구성해야한다.
+      한개짜리 AbstractRoutingDataSource를 구현하고 새 AbstractRoutingDataSource Bean에 추가하던지? 뭐 방법은 많을 듯
+  */
   @Bean(name = "rootDataSource")
   public DataSource rootDataSource() {
     return makeDataSource("common", "root-schema.sql", "root-data.sql");
@@ -35,7 +40,6 @@ public class RootDatasourceConfig {
   public SqlSessionFactory rootSessionFactory(@Qualifier("rootDataSource") DataSource dataSource, ApplicationContext applicationContext) throws Exception {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
-    sessionFactory.setTransactionFactory(new ManagedTransactionFactory());
     sessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/root/*.xml"));
     
     return sessionFactory.getObject();

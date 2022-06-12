@@ -40,4 +40,11 @@ public class RouteCallController {
     UserRequest request = new UserRequest(name);
     return new RestResponse<Integer>(routeCallService.createRouteUser(request), HttpStatus.CREATED);
   }
+  
+  // 하위데이터베이스 - 한개 서버에 한개 유저 생성 시 Tx 확인테스트
+  @PostMapping("/api/users/{name}/{world}")
+  public RestResponse<Integer> createRouteUserOne(@PathVariable String name, @PathVariable Integer world) {
+    UserRequest request = new UserRequest(name);
+    return new RestResponse<Integer>(routeCallService.createRouteUser(request, world), HttpStatus.CREATED);
+  }
 }

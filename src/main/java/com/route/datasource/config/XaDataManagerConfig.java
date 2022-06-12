@@ -18,9 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class XaDataManagerConfig {
   /*
-   * JtaTransactionManager를 빈으로 등록한다. JtaTransactionManager는 
-   * 여타 트랜잭션 매니저와는 다르게 프로퍼티로 DataSource나 SessionFactory 등의 빈을 참조하지 않는다. 
-   * 대신 서버에 등록된 트랜잭션 매니저를 가져와 JTA를 이용해서 트랜잭션을 관리해줄 뿐이다.
+   * JtaTransactionManager를 빈으로 등록한다. JtaTransactionManager는 여타 트랜잭션 매니저와는 다르게 프로퍼티로 DataSource나 SessionFactory 등의 빈을 참조하지 않는다. 대신 서버에 등록된 트랜잭션 매니저를 가져와 JTA를 이용해서 트랜잭션을 관리해줄 뿐이다.
    */
   
   @Bean(name = "userTransaction")
@@ -43,11 +41,10 @@ public class XaDataManagerConfig {
   
   @Bean(name = "multiTxManager")
   @DependsOn({ "userTransaction", "atomikosTransactionManager" })
-  public PlatformTransactionManager transactionManager() throws Throwable {
+  public PlatformTransactionManager transactionManager(UserTransaction userTransaction, TransactionManager atomikosTransactionManager) throws Throwable {
     log.info("========= transactionManager =========");
-    UserTransaction userTransaction = userTransaction();
     
-    JtaTransactionManager manager = new JtaTransactionManager(userTransaction, atomikosTransactionManager());
+    JtaTransactionManager manager = new JtaTransactionManager(userTransaction, atomikosTransactionManager);
     
     return manager;
   }

@@ -8,7 +8,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -49,7 +48,10 @@ public class RouteDatasourceConfig {
   public SqlSessionFactory routingSessionFactory(@Qualifier("routingDataSource") DataSource dataSource, ApplicationContext applicationContext) throws Exception {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
-    sessionFactory.setTransactionFactory(new ManagedTransactionFactory()); // 이거 없으면 여러 Route 접근 시 처음 접근 DB만 건들이게 된다.
+    // 기본 Spring Sync session에서만 찾게되는 이슈로 아래 수정 필요하다.
+    // ManagedTransactionFactory를 사용하게 하면 되는데, 이상하게 Connection을 계속 새로 맺고 있었다. 서치를 통해 아래 구현 소스로 변경함.
+    // sessionFactory.setTransactionFactory(new ManagedTransactionFactory()); 
+    sessionFactory.setTransactionFactory(new MultiDataSourceTransactionFactory()); 
     sessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/routing/*.xml"));
     
     return sessionFactory.getObject();
@@ -73,7 +75,7 @@ public class RouteDatasourceConfig {
     
     dataSource.setUniqueResourceName(name);
     dataSource.setMaxPoolSize(20);
-    dataSource.setPoolSize(10);
+    dataSource.setMinPoolSize(10);
     dataSource.setXaProperties(properties);
     
     return dataSource;
