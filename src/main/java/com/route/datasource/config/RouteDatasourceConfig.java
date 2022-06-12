@@ -80,7 +80,7 @@ public class RouteDatasourceConfig {
   }
 
   /*
-   Master / Slave 환경에서의 Read/Write 구분
+   Transaction Datasource Connect에 Lazy proxy 적용
    @Bean
     public DataSource lazyRoutingDataSource(
         @Qualifier(value = "routingDataSource") DataSource routingDataSource) {
