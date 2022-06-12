@@ -44,9 +44,6 @@ public class XaDataManagerConfig {
   @DependsOn({ "userTransaction", "atomikosTransactionManager" })
   public PlatformTransactionManager transactionManager(UserTransaction userTransaction, TransactionManager atomikosTransactionManager) throws Throwable {
     log.info("========= transactionManager =========");
-    
-    JtaTransactionManager manager = new JtaTransactionManager(userTransaction, atomikosTransactionManager);
-    
-    return manager;
+    return new JtaTransactionManager(userTransaction, atomikosTransactionManager);
   }
 }
