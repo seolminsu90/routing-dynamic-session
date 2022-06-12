@@ -32,8 +32,8 @@ public class RouteCallService {
   
   @Transactional(value = "rootTxManager")
   public List<RouteDatabaseInfo> getRootAllDatabases() {
-    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
-    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    log.debug("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.debug("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
     
     return rootMapper.selectDatabaseInfo();
   }
@@ -48,21 +48,26 @@ public class RouteCallService {
   public int createRouteUser(UserRequest request) {
     
     Set<Integer> ids = routeDataSource.getServerLookupWorldIds();
-    log.info(ids.toString());
+    log.debug(ids.toString());
     
     // 교차 트랜젝션 확인을 위해 For문 -> 교차 월드 작업
-    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
-    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    log.debug("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.debug("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
       
     userMapper.createRouteUser(new UserDTO(1, request.getName() + "_1" + 1));
-    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_2" + 2));
-    if ("TestError".equals(request.getName())) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
-    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_3" + 1));
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_1" + 1));
+    if ("Error1".equals(request.getName())) throw new RuntimeException("임의의 1번 월드 트렌젝션 확인용 익셉션");
+    userMapper.createRouteUser(new UserDTO(3, request.getName() + "_1" + 1));
     
-    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_1" + 2));
-    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_2" + 1));
-    if ("ErrorTest".equals(request.getName())) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
-    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_3" + 2));
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_2" + 2));
+    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_2" + 2));
+    if ("Error2".equals(request.getName())) throw new RuntimeException("임의의 2번 월드 트렌젝션 확인용 익셉션");
+    userMapper.createRouteUser(new UserDTO(3, request.getName() + "_2" + 2));
+    
+    userMapper.createRouteUser(new UserDTO(3, request.getName() + "_3" + 3));
+    if ("Error3".equals(request.getName())) throw new RuntimeException("임의의 3번 월드 트렌젝션 확인용 익셉션");
+    userMapper.createRouteUser(new UserDTO(2, request.getName() + "_3" + 3));
+    userMapper.createRouteUser(new UserDTO(1, request.getName() + "_3" + 3));
     
     return 0;
   }
@@ -70,8 +75,8 @@ public class RouteCallService {
   @Transactional(value = "multiTxManager")
   public int createRouteUser(UserRequest request, Integer id) {
     
-    log.info("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
-    log.info("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
+    log.debug("Active Tx : {}", String.valueOf(TransactionSynchronizationManager.isActualTransactionActive()));
+    log.debug("TxName : {}", TransactionSynchronizationManager.getCurrentTransactionName());
     
     // null로 이름을 보내면 아예 커넥션을 맺지 않아본다.
     if (!"null".equals(request.getName())) userMapper.createRouteUser(new UserDTO(id, request.getName() + "_1" + id));

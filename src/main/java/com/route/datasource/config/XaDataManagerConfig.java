@@ -25,7 +25,7 @@ public class XaDataManagerConfig {
   public UserTransaction userTransaction() throws Throwable {
     log.info("========= userTransaction =========");
     UserTransactionImp userTransactionImp = new UserTransactionImp();
-    userTransactionImp.setTransactionTimeout(10000);
+    userTransactionImp.setTransactionTimeout(60);
     
     return userTransactionImp;
   }
@@ -35,6 +35,7 @@ public class XaDataManagerConfig {
     log.info("========= atomikosTransactionManager =========");
     UserTransactionManager userTransactionManager = new UserTransactionManager();
     userTransactionManager.setForceShutdown(false);
+    userTransactionManager.setTransactionTimeout(60);
     
     return userTransactionManager;
   }

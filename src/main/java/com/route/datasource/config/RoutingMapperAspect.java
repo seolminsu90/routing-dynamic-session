@@ -32,7 +32,7 @@ public class RoutingMapperAspect {
     RoutingMapper routingMapper = mapperInterface.getDeclaredAnnotation(RoutingMapper.class);
     if (routingMapper != null) {
       Integer worldId = findLookupKey(parameters, args);
-      log.info("Routed worldId: {}", worldId);
+      log.debug("Routed worldId: {}", worldId);
       ThreadLocalContext.set(worldId);
     }
     

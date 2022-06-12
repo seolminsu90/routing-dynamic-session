@@ -3,8 +3,6 @@ spring:
   h2:
     console:
       enabled: true
-      path: /h2-console
-# 왜 syntax 에러 뜨지-_-?;
-management:  endpoint:    health:      show-details: always
+      path: /h2-console        management:  endpoint:    health:      show-details: always
   server:
     port: 9091  endpoints:    web:      exposure:        include: '*'

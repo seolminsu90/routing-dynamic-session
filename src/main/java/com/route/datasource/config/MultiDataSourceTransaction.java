@@ -7,78 +7,64 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ibatis.transaction.Transaction;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 import com.route.datasource.util.ThreadLocalContext;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class MultiDataSourceTransaction implements Transaction {
-  private static final Log LOGGER = LogFactory.getLog(MultiDataSourceTransaction.class);
-  
   private final DataSource dataSource;
-  private Connection main;
-  private Integer currentLookupKey;
   
-  private ConcurrentMap<Integer, Connection> other;
+  private ConcurrentMap<Integer, Connection> connections;
   
   public MultiDataSourceTransaction(DataSource dataSource) {
     this.dataSource = dataSource;
-    other = new ConcurrentHashMap<>();
-    currentLookupKey = ThreadLocalContext.get();
+    connections = new ConcurrentHashMap<>();
   }
   
   @Override
   public Connection getConnection() throws SQLException {
     Integer nowLookupKey = ThreadLocalContext.get();
-    if (nowLookupKey == null) throw new RuntimeException("can't find LookupKey");
+    if (nowLookupKey == null) throw new RuntimeException("getConnection... :: LookupKey가 Context에 설정되지 않았습니다.");
     
-    LOGGER.debug("getConnection... :: LookupKey" + nowLookupKey);
-    if (nowLookupKey.equals(currentLookupKey)) {
-      if (main != null) {
-        LOGGER.debug("getConnection... :: 기존 연결을 사용합니다.");
-        return main;
-      } else {
-        LOGGER.debug("getConnection... :: 새 연결을 맺습니다.");
-        this.main = DataSourceUtils.getConnection(this.dataSource);
-        currentLookupKey = nowLookupKey;
-        return main;
-      }
+    if (connections.isEmpty()) {
+      log.debug("getConnection... :: 초기 새 연결을 맺습니다.");
+      connections.put(nowLookupKey, DataSourceUtils.getConnection(this.dataSource));
     } else {
-      if (!other.containsKey(nowLookupKey)) {
-        LOGGER.debug("getConnection... :: 다른 새 연결을 맺습니다.");
+      if (!connections.containsKey(nowLookupKey)) {
+        log.debug("getConnection... :: 다른 새 연결을 맺습니다.");
         try {
-          Connection conn = dataSource.getConnection();
-          other.put(nowLookupKey, conn);
+          Connection conn = this.dataSource.getConnection();
+          connections.put(nowLookupKey, conn);
         } catch (SQLException ex) {
-          throw new CannotGetJdbcConnectionException("Could not get JDBC Connection", ex);
+          throw new CannotGetJdbcConnectionException("getConnection... :: LookupKey에 해당하는 DB가 없거나 연결에 실패했습니다.", ex);
         }
       } else {
-        LOGGER.debug("getConnection... :: 기존 연결을 사용합니다.");
+        log.debug("getConnection... :: 기존 연결을 사용합니다.");
       }
-      return other.get(nowLookupKey);
     }
-    
+    log.debug("getConnection... :: 해당 연결의 LookupKey는 [{}]입니다.", nowLookupKey);
+    return connections.get(nowLookupKey);
   }
   
   @Override
   public void commit() throws SQLException {
-    LOGGER.debug("XaDataManager :: XAResource가 대신 관리합니다.");
+    log.debug("XaDataManager :: XAResource가 대신 관리합니다.");
   }
   
   @Override
   public void rollback() throws SQLException {
-    LOGGER.debug("XaDataManager :: XAResource가 대신 관리합니다.");
+    log.debug("XaDataManager :: XAResource가 대신 관리합니다.");
   }
   
   @Override
   public void close() throws SQLException {
-    LOGGER.debug("메인 커넥션을 닫습니다.");
-    DataSourceUtils.releaseConnection(this.main, this.dataSource);
-    for (Connection connection : other.values()) {
-      LOGGER.debug("다른 커넥션을 닫습니다.");
+    for (Connection connection : connections.values()) {
+      log.debug("열린 커넥션을 닫습니다.");
       DataSourceUtils.releaseConnection(connection, this.dataSource);
     }
   }

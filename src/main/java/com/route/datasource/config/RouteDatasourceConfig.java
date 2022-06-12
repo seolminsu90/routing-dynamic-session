@@ -73,10 +73,12 @@ public class RouteDatasourceConfig {
     //dataSource.setXaDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"); // MYSQL
     dataSource.setXaDataSourceClassName("org.h2.jdbcx.JdbcDataSource"); // H2
     
-    dataSource.setUniqueResourceName(name);
+    dataSource.setUniqueResourceName("unique_H2_DB_" + name);
     dataSource.setMaxPoolSize(20);
     dataSource.setMinPoolSize(10);
     dataSource.setXaProperties(properties);
+    
+    //dataSource.printXaProperties();
     
     return dataSource;
   }

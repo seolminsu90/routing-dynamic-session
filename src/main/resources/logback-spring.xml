@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration scan="true" scanPeriod="30 seconds">
+		<appender name="ROLLING"
+				class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<rollingPolicy
+						class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+						<fileNamePattern>D:\logs\logback-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+						<timeBasedFileNamingAndTriggeringPolicy
+								class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+								<maxFileSize>100MB</maxFileSize>
+						</timeBasedFileNamingAndTriggeringPolicy>
+				</rollingPolicy>
+				<encoder>
+						<pattern>%d{HH:mm:ss} [%-5p] [%F]%M\(%L\) : %m%n</pattern>
+				</encoder>
+		</appender>
+
 		<appender name="STDOUT"
 				class="ch.qos.logback.core.ConsoleAppender">
 				<layout class="ch.qos.logback.classic.PatternLayout">
@@ -7,10 +22,12 @@
 						</pattern>
 				</layout>
 		</appender>
-		
-		<logger name="org.springframework.boot.autoconfigure" level="OFF"/>
-		
-		<root level="DEBUG">
+
+		<logger name="org.springframework.boot.autoconfigure"
+				level="OFF" />
+
+		<root level="INFO">
+				<appender-ref ref="ROLLING"/>
 				<appender-ref ref="STDOUT" />
 		</root>
 </configuration>
