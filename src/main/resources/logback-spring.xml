@@ -4,7 +4,8 @@
 				class="ch.qos.logback.core.rolling.RollingFileAppender">
 				<rollingPolicy
 						class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-						<fileNamePattern>D:\logs\logback-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+						<fileNamePattern>D:\logs\logback-%d{yyyy-MM-dd}.%i.log
+						</fileNamePattern>
 						<timeBasedFileNamingAndTriggeringPolicy
 								class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 								<maxFileSize>100MB</maxFileSize>
@@ -26,8 +27,30 @@
 		<logger name="org.springframework.boot.autoconfigure"
 				level="OFF" />
 
-		<root level="INFO">
-				<appender-ref ref="ROLLING"/>
+
+
+		<logger
+				name="org.apache.ibatis.transaction.managed.ManagedTransaction"
+				level="DEBUG">
+				<appender-ref ref="STDOUT" />
+		</logger>
+
+		<logger name="org.apache.ibatis.logging.jdb.BaseJdbcLogger"
+				level="DEBUG">
+				<appender-ref ref="STDOUT" />
+		</logger>
+
+		<logger name="com.atomikos" level="INFO">
+				<appender-ref ref="STDOUT" />
+		</logger>
+
+		<logger name="com.atomikos.datasource.pool.ConnectionPool"
+				level="TRACE">
+				<appender-ref ref="STDOUT" />
+		</logger>
+
+		<root level="DEBUG">
+				<appender-ref ref="ROLLING" />
 				<appender-ref ref="STDOUT" />
 		</root>
 </configuration>

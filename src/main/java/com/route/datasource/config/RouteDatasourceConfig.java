@@ -8,6 +8,7 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
@@ -48,9 +49,12 @@ public class RouteDatasourceConfig {
   public SqlSessionFactory routingSessionFactory(@Qualifier("routingDataSource") DataSource dataSource, ApplicationContext applicationContext) throws Exception {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
+    
     // 기본 Spring Sync session에서만 찾게되는 이슈로 아래 수정 필요하다.
-    // ManagedTransactionFactory를 사용하게 하면 되는데, 이상하게 Connection을 계속 새로 맺고 있었다. 서치를 통해 아래 구현 소스로 변경함.
-    // sessionFactory.setTransactionFactory(new ManagedTransactionFactory()); 
+    // ManagedTransactionFactory를 사용하게 하면 되는데, 이상하게 tx를 따로 인식하는지 Connection을 계속 새로 맺고 있었다.
+    //sessionFactory.setTransactionFactory(new ManagedTransactionFactory()); 
+    
+    //그래서 MultiDataSourceTransactionFactory를 새로 구현해서 트랜젝션 내에서 동일 Connection은 재사용 하도록 했다.
     sessionFactory.setTransactionFactory(new MultiDataSourceTransactionFactory()); 
     sessionFactory.setMapperLocations(applicationContext.getResources("classpath:mapper/routing/*.xml"));
     
@@ -67,18 +71,19 @@ public class RouteDatasourceConfig {
     Properties properties = new Properties();
     properties.setProperty("user", "sa");
     properties.setProperty("password", "");
-    properties.setProperty("url", "jdbc:h2:file:D:/data/" + name); // 하위 DB의 연결은 파일 h2로 사용했다. (route-scheme.sql 참조)
+    properties.setProperty("url", "jdbc:h2:file:D:/data/" + name);  // 하위 DB의 연결은 파일 h2로 사용했다. (route-scheme.sql 참조)
 
     //XA 처리를 위한 드라이버 변경: AtomikosDataSourceBean은 XADataSource 인터페이스를 참조하고 있다. 다른 DB도 구현체만 바꿔주면 된다.
-    //dataSource.setXaDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource"); // MYSQL
-    dataSource.setXaDataSourceClassName("org.h2.jdbcx.JdbcDataSource"); // H2
-    
-    dataSource.setUniqueResourceName("unique_H2_DB_" + name);
-    dataSource.setMaxPoolSize(20);
-    dataSource.setMinPoolSize(10);
+    //dataSource.setXaDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlXADataSource");     // MYSQL
+    dataSource.setXaDataSourceClassName("org.h2.jdbcx.JdbcDataSource");                           // H2
     dataSource.setXaProperties(properties);
     
-    //dataSource.printXaProperties();
+    dataSource.setUniqueResourceName("unique_H2_DB_" + name);
+    dataSource.setPoolSize(5);                                      // 커넥션 풀 min/max 개수
+    dataSource.setBorrowConnectionTimeout(600);                     // 커넥션 풀 대기 타임아웃 시간
+    dataSource.setMaxIdleTime(60);                                  // Idle 상태인 커넥션 풀 자동 반환 시간
+    
+    // 기타 추가 옵션은 com.atomikos.jdbc.AtomikosDataSourceBean::doInit() 확인
     
     return dataSource;
   }

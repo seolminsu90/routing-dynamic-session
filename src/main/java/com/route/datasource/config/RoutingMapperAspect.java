@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class RoutingMapperAspect {
   
+  // @RoutingMapper 스캔하기 위해 xxxMapper를 찾는다.
   @Around("execution(* com.route.datasource..repository.routing..*Mapper.*(..))")
   public Object aroundTargetMethod(ProceedingJoinPoint thisJoinPoint) {
     MethodSignature methodSignature = (MethodSignature) thisJoinPoint.getSignature();

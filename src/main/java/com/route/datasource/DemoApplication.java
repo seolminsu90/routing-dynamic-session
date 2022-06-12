@@ -36,6 +36,7 @@ public class DemoApplication {
   public static void main(String[] args) {
     // 기본값의 경우 50개이상 트렌젝션이 동시에 일어날 경우 에러 발생한다. 적당한 수치로 조절한다.
     System.setProperty("com.atomikos.icatch.max_actives", "-1");
+    System.setProperty("com.atomikos.icatch.default_jta_timeout", "60000");
     
     SpringApplication.run(DemoApplication.class, args);
   }
