@@ -113,3 +113,31 @@
 
 쿼리 하나하나 마다 계속 **connection->query->clos**e를 반복하고 있었다. 그래서 커넥션을 재사용하도록 **MultiDataSourceTransactionFactory** 를 구현해서 바꿨다.
 
+## 관련 각종 설정 및 Jta properties Atomikos 설정 변경
+
+https://www.atomikos.com/Documentation/JtaProperties
+
+타임아웃이나 기타 등등 설정 변경 시 아래처럼 값을 추가한다.
+~~spring.jta.atomikos.properties 으로 해도 될거같은데 이상하게 안됨...~~
+```
+    System.setProperty("com.atomikos.icatch.max_actives", "-1"); // 최대 트랜젝션 활성화 개수 (기본 50개)
+    System.setProperty("com.atomikos.icatch.default_jta_timeout", "60000"); // jta 트랜잭션 총 타임아웃 시간
+```
+
+**AtomikosDataSourceBean 에 대한 설정은 Datasource 설정 시 따로 추가한다**
+```
+    dataSource.setXaDataSourceClassName("org.h2.jdbcx.JdbcDataSource");  // H2
+    dataSource.setXaProperties(properties);
+    ...
+    dataSource.setUniqueResourceName("unique_H2_DB_" + name);
+    dataSource.setPoolSize(5);                                      // 커넥션 풀 min/max 개수
+    dataSource.setBorrowConnectionTimeout(600);                     // 커넥션 풀 대기 타임아웃 시간
+    dataSource.setMaxIdleTime(60);                                  // Idle 상태인 커넥션 풀 자동 반환 시간
+    // 기타 추가 옵션은 com.atomikos.jdbc.AtomikosDataSourceBean::doInit() 확인
+```
+
+**Transaction의 IsolationLevel을 변경하려면 JtaTransactionManager 설정을 수정해야한다**
+```
+    JtaTransactionManager txManager = new JtaTransactionManager(userTransaction, atomikosTransactionManager);
+    txManager.setAllowCustomIsolationLevels(true); // 커스텀 
+```
