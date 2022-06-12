@@ -103,6 +103,8 @@
 ```
 - 라우트 데이터 소스 아래의 컴포넌트로 Map<[key],Datasource> 형태로 하위 구현되는 걸 확인 할 수 있다.
 
+---
+
 ## routingSessionFactory의 TransactionFactory 교체
 
 기본으로 **SpringManagedTransactionFactory** 을 사용하다보니 Sync된 한개의 Datasource만 계속 보는 현상이 있다.
