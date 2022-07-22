@@ -141,3 +141,14 @@ https://www.atomikos.com/Documentation/JtaProperties
     JtaTransactionManager txManager = new JtaTransactionManager(userTransaction, atomikosTransactionManager);
     txManager.setAllowCustomIsolationLevels(true); // 커스텀 
 ```
+
+### Memo
+
+XA
+XA는 분산 트랜잭션 처리를 위해 X/Open이 제정한 표준 스펙이다. 멀티 트랜잭션 관리자와 로컬 리소스 관리자 사이의 인터페이스, 리소스 관리자가 트랜잭션을 처리하기 위해 필요한 것을 규정하고 있다.
+
+JTA
+JTA(Java 트랜잭션 API)는 XA 리소스(예: 데이터베이스) 간의 분산 트랜잭션을 처리하는 Java API이다. JTA API는 javax.transaction와 javax.transaction.xa 두 개의 패키지로 구성된다.
+
+Atomikos
+JTA 구현체중 하나
