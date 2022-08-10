@@ -90,14 +90,14 @@ public class RouteDatasourceConfig {
   }
 
   /*
-   Transaction Datasource Connect에 Lazy proxy 적용
+   - Transaction Datasource Connect에 Lazy proxy 적용해서 사용 시
    @Bean
     public DataSource lazyRoutingDataSource(
         @Qualifier(value = "routingDataSource") DataSource routingDataSource) {
         return new LazyConnectionDataSourceProxy(routingDataSource);
     }
 
-    TranscationManager가 프록시 객체를 사용할 수 있도록 dataSource 설정
+    - TranscationManager가 프록시 객체를 사용할 수 있도록 dataSource 설정
     @Bean
     public PlatformTransactionManager transactionManager(
         @Qualifier(value = "lazyRoutingDataSource") DataSource lazyRoutingDataSource) {
@@ -106,7 +106,9 @@ public class RouteDatasourceConfig {
         return transactionManager;
     }
     
-    일반적인 TxManager 사용 시 ( XA가 적용되지 않으며, ThreadLocal의 Lookup 키관리 확실하게 잘해야 한다.. )
+    // ----------------------위와 아래는 공존할 필요 없음---------------------------
+    
+    - 일반적인 TxManager 사용 시 ( XA가 적용되지 않으며, ThreadLocal의 Lookup 키관리 확실하게 잘해야 한다.. )
     @Bean(name = "routingTxManager")
     public DataSourceTransactionManager routeTransactionManager(@Qualifier("routingDataSource") DataSource datasource) {
       DataSourceTransactionManager manager = new DataSourceTransactionManager();
