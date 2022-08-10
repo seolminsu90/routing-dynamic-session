@@ -67,6 +67,11 @@
 
 ---
 
+## @MapperScan 관련
+
+- @MapperScan의 annotationClass로 @RoutingMapper를 설정하면 @Mapper는 필요없어진다. (현재는 두개 다 붙어있고 각자의 용도가 다른 상태)
+- Routing 필요없는 Mapper들과 구분할 때 각각의 Datasource config에 annotationClass로 바라보는 매퍼들을 다르게 정의하면 좋을 듯
+
 ## Datasource Mapping 구조
 ```bash
 # /actuator/health
