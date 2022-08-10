@@ -96,6 +96,7 @@ public class RouteDatasourceConfig {
         return new LazyConnectionDataSourceProxy(routingDataSource);
     }
 
+    TranscationManager가 프록시 객체를 사용할 수 있도록 dataSource 설정
     @Bean
     public PlatformTransactionManager transactionManager(
         @Qualifier(value = "lazyRoutingDataSource") DataSource lazyRoutingDataSource) {
