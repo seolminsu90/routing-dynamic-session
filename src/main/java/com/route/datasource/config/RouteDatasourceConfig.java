@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Configuration
-@MapperScan(value = "com.route.datasource.repository.routing", sqlSessionFactoryRef = "routingSessionFactory")
+@MapperScan(value = "com.route.datasource.repository.routing", sqlSessionFactoryRef = "routingSessionFactory") // annotationClass 설정해서 특정 어노테이션만 매퍼로 인식하게 해서 다른 Datasource config랑 분리 가능
 public class RouteDatasourceConfig {
   
   @DependsOn({ "rootSessionTemplate" })
