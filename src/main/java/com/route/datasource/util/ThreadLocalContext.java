@@ -1,7 +1,7 @@
 package com.route.datasource.util;
 
 public class ThreadLocalContext {
-  private static ThreadLocal<Integer> lookUpKey = new ThreadLocal<>();
+  private static final ThreadLocal<Integer> lookUpKey = new ThreadLocal<>();
   
   public static Integer get() {
     return lookUpKey.get();
