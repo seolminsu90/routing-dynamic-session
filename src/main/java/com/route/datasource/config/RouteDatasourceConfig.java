@@ -50,6 +50,7 @@ public class RouteDatasourceConfig {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
     
+    // Mybatis는 ManagedTransactionFactory로부터 SQLSession를 얻는다.
     // 기본 Spring Sync session에서만 찾게되는 이슈로 아래 수정 필요하다.
     // ManagedTransactionFactory를 사용하게 하면 되는데, 이상하게 tx를 따로 인식하는지 Connection을 계속 새로 맺고 있었다.
     //sessionFactory.setTransactionFactory(new ManagedTransactionFactory()); 
