@@ -10,7 +10,7 @@ import com.route.datasource.model.User;
 import com.route.datasource.model.UserDTO;
 
 @Mapper
-@RoutingMapper
+@RoutingMapper // @MapperScan의 annotationClass로 @RoutingMapper를 설정하면 @Mapper는 필요없어진다.
 public interface UserMapper {
   public List<User> selectUserList(@LookupKey Integer worldId);
   
