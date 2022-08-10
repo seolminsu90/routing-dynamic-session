@@ -72,6 +72,22 @@
 - @MapperScan의 annotationClass로 @RoutingMapper를 설정하면 @Mapper는 필요없어진다. (현재는 두개 다 붙어있고 각자의 용도가 다른 상태)
 - Routing 필요없는 Mapper들과 구분할 때 각각의 Datasource config에 annotationClass로 바라보는 매퍼들을 다르게 정의하면 좋을 듯
 
+```bash
+// 라우팅 적용 데이터소스 매퍼 분리
+@Configuration
+@MapperScan(value = "com.route.datasource.repository.routing", annotationClass = RoutingMapper.class sqlSessionFactoryRef = "routingSessionFactory")
+public class RouteDatasourceConfig {
+...
+}
+
+// 일반 데이터소스 매퍼
+@Configuration
+@MapperScan(value = "com.route.datasource.repository.general", annotationClass = Mapper.class sqlSessionFactoryRef = "generalSessionFactory")
+public class GeneralDatasourceConfig {
+...
+}
+```
+
 ## Datasource Mapping 구조
 ```bash
 # /actuator/health
