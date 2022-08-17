@@ -90,7 +90,7 @@ public class RouteDatasourceConfig {
   }
 
   /*
-   - Transaction Datasource Connect에 Lazy proxy 적용해서 사용 시
+   - Transaction Datasource Connect에 Lazy proxy 적용해서 사용 시 (Tx생성 시점이 아닌 쿼리 시점에 Connection을 가져오도록 함)
    @Bean
     public DataSource lazyRoutingDataSource(
         @Qualifier(value = "routingDataSource") DataSource routingDataSource) {
