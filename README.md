@@ -134,6 +134,8 @@ public class GeneralDatasourceConfig {
 
 쿼리 하나하나 마다 계속 **connection->query->clos**e를 반복하고 있었다. 그래서 커넥션을 재사용하도록 **MultiDataSourceTransactionFactory** 를 구현해서 바꿨다.
 
+(실제 커넥션을 물었다 뱉었다 하는지는 체크 필요)
+
 ## 관련 각종 설정 및 Jta properties Atomikos 설정 변경
 
 https://www.atomikos.com/Documentation/JtaProperties
