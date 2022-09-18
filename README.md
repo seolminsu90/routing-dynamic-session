@@ -167,6 +167,21 @@ https://www.atomikos.com/Documentation/JtaProperties
     txManager.setAllowCustomIsolationLevels(true); // 커스텀 
 ```
 
+**Mysql xa driver 사용시 추가 설정
+```
+pinGlobalTxToPhysicalConnection=true 매개변수를 연결 URL에 추가하거나 com.atomikos.jdbc.AtomikosDataSourceBean Spring 정의 내의 매개변수로 추가한 후 내 문제를 해결했습니다.
+
+<bean id="dataSource" class="com.atomikos.jdbc.AtomikosDataSourceBean"
+        init-method="init" destroy-method="close">
+...
+<property name="xaProperties">
+   <props>
+      <prop key="pinGlobalTxToPhysicalConnection">true</prop>  
+   </props>     
+</property>
+</bean>
+```
+
 ### Memo
 
 - XA
