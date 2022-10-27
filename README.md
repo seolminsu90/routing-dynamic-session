@@ -8,6 +8,7 @@
 - 하위 DB 간 트랜젝션 처리 시 일관성을 가질 수 있도록 한다. (XA)
 - ThreadLocal주입 Annotation Aspect 구현으로 수작업으로 Context 수정 안해도 되게 하고, @Mapper Interface로 Mapper 연결(singleton) 
 - ChainedTransactionManager으로 해도 될 듯
+- 연결풀 및 디비갱신은 @RefreshScope 및 actuator사용
 
 ---
 
