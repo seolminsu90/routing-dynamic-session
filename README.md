@@ -196,3 +196,11 @@ JTA(Java 트랜잭션 API)는 XA 리소스(예: 데이터베이스) 간의 분�
 - Atomikos
 
 JTA 구현체중 하나
+
+#### Spring boot 3 관련
+
+스프링 부트 3부터 jdk17 자카르타 패키지로 변경되서 기존 atomikos가 전부 적용이 안된다. 얼마전 새로운 버전 출시를 했는데, 추후 테스트 해보는 걸로
+
+`https://www.atomikos.com/Blog/ExtremeTransactions6dot0#Feature199869_Spring_Boot_3_Starter`
+
+
